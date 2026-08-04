@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval History</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Procurement</h2>
+
+        <a href="index.html">Dashboard</a>
+        <a href="employee.html">Employees</a>
+        <a href="purchase-requisition.html">Purchase Requisition</a>
+        <a href="workflow.html">Workflow</a>
+        <a href="approval-history.html" class="active">Approval History</a>
+    </div>
+
+    <!-- Main Content -->
+	<div class="main-content">
+
+        <div class="header">
+            <h1>Approval History</h1>
+        </div>
+
+        <div class="card">
+
+            <h2>Search Approval History</h2>
+
+            <div class="form-group">
+                <label>Purchase Requisition ID</label>
+
+                <input
+                    type="number"
+                    id="requestId"
+                    placeholder="Enter Requisition ID">
+            </div>
+
+            <button onclick="loadHistory()">
+                Search
+            </button>
+
+            <button onclick="clearHistory()">
+                Clear
+            </button>
+
+            <p id="message"></p>
+
+        </div>
+
+        <br>
+
+        <div class="card">
+
+            <h2>Approval History</h2>
+
+            <table>
+
+                <thead>
+
+                <tr>
+                    <th>History ID</th>
+                    <th>Approver ID</th>
+                    <th>Approver Name</th>
+                    <th>Action</th>
+                    <th>Remarks</th>
+                    <th>Action Date</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="historyTable">
+
+                </tbody>
+
+            </table>
+			
+        </div>
+
+    </div>
+
+</div>
+
+<script src="approval-history.js"></script>
+
+</body>
+</html>

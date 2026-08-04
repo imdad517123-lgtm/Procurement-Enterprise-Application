@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Requisition</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+	<script src="purchase-requisition.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Procurement</h2>
+
+        <a href="index.html">Dashboard</a>
+        <a href="purchase-requisition.html" class="active">Purchase Requisition</a>
+        <a href="workflow.html">Workflow</a>
+        <a href="history.html">Approval History</a>
+    </div>
+
+    <!-- Main Content -->
+	<div class="main-content">
+
+        <div class="header">
+            <h1>Purchase Requisition</h1>
+        </div>
+
+        <!-- Requisition Form -->
+        <div class="card">
+
+            <h2>Create Purchase Requisition</h2>
+
+            <!-- Hidden field for update -->
+            <input type="hidden" id="requisitionId">
+
+            <div class="form-group">
+                <label>Employee ID</label>
+                <input type="number"
+                       id="employeeId"
+                       placeholder="Enter Employee ID">
+            </div>
+
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text"
+                       id="itemName"
+                       placeholder="Enter Item Name">
+            </div>
+
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number"
+                       id="quantity"
+                       placeholder="Enter Quantity">
+            </div>
+
+            <div class="form-group">
+                <label>Estimated Cost</label>
+                <input type="number"
+                       id="estimatedCost"
+                       placeholder="Enter Estimated Cost">
+            </div>
+
+            <div class="form-group">
+                <label>Justification</label>
+                <textarea
+                    id="justification"
+                    rows="4"
+                    placeholder="Enter Justification"></textarea>
+            </div>
+
+            <button onclick="saveRequisition()">
+                Save Requisition
+            </button>
+
+            <button onclick="clearForm()">
+                Clear
+            </button>
+
+            <p id="message"></p>
+
+        </div>
+
+        <br>
+
+        <!-- Requisition Table -->
+        <div class="card">
+
+            <h2>Purchase Requisition List</h2>
+
+            <table border="1" width="100%" cellspacing="0">
+
+                <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Employee</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Estimated Cost</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="requisitionTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/requisition.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,224 @@
+/* ===================================
+   GLOBAL STYLES
+=================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    color:#333;
+}
+
+/* Links */
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+/* Headings */
+
+h1{
+    font-size:30px;
+    color:#1f2937;
+    margin-bottom:10px;
+}
+
+h2{
+    font-size:24px;
+    color:#374151;
+    margin-bottom:15px;
+}
+
+h3{
+    font-size:20px;
+    color:#4b5563;
+}
+
+/* Paragraph */
+
+p{
+    font-size:15px;
+    line-height:1.6;
+}
+
+/* Container */
+
+.container{
+    width:100%;
+}
+
+/* Cards */
+
+.card{
+    background:#ffffff;
+    border-radius:8px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Form */
+
+.form-group{
+    margin-bottom:15px;
+}
+
+label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:600;
+}
+
+input,
+select,
+textarea{
+
+    width:100%;
+    padding:10px;
+    border:1px solid #d1d5db;
+    border-radius:5px;
+    outline:none;
+    font-size:15px;
+
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+
+    border-color:#2563eb;
+    box-shadow:0 0 5px rgba(37,99,235,.3);
+
+}
+
+textarea{
+    resize:vertical;
+}
+
+/* Buttons */
+
+button{
+
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:5px;
+    cursor:pointer;
+    transition:.3s;
+    margin-right:10px;
+    margin-top:10px;
+
+}
+
+button:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* Tables */
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+
+}
+
+th{
+
+    background:#2563eb;
+    color:white;
+    padding:12px;
+
+}
+
+td{
+
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+
+}
+
+tr:nth-child(even){
+
+    background:#f8fafc;
+
+}
+
+tr:hover{
+
+    background:#e8f0ff;
+
+}
+
+/* Utility */
+
+.text-center{
+
+    text-align:center;
+
+}
+
+.mt-20{
+
+    margin-top:20px;
+
+}
+
+.mb-20{
+
+    margin-bottom:20px;
+
+}
+
+/* Messages */
+
+#message{
+
+    margin-top:15px;
+    font-weight:bold;
+    color:green;
+
+}
+
+.error{
+
+    color:red;
+
+}
+
+.success{
+
+    color:green;
+
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    table{
+
+        display:block;
+        overflow-x:auto;
+
+    }
+
+    button{
+
+        width:100%;
+        margin-bottom:10px;
+
+    }
+
+}

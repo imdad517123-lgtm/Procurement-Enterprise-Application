@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manager Dashboard</title>
+
+<link rel="stylesheet" href="manager.css">
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h2>Manager Approval Dashboard</h2>
+
+        <button onclick="logout()">Logout</button>
+
+    </div>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>Request ID</th>
+            <th>Employee</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Estimated Cost</th>
+            <th>Status</th>
+            <th>Action</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody id="requestTable">
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script src="manager.js"></script>
+
+</body>
+</html>

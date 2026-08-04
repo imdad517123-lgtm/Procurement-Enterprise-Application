@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Management</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <h2>Procurement</h2>
+
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="employee.html">Employees</a></li>
+            <li><a href="purchase-requisition.html">Purchase Requisition</a></li>
+            <li><a href="workflow.html" class="active">Workflow</a></li>
+            <li><a href="approval-history.html">Approval History</a></li>
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <div class="topbar">
+            <h1>Workflow Management</h1>
+        </div>
+
+        <!-- Search Buttons -->
+        <div class="card">
+
+            <button onclick="loadAllWorkflows()">All Workflows</button>
+
+            <button onclick="loadPendingWorkflows()">Pending</button>
+
+            <button onclick="loadApprovedWorkflows()">Approved</button>
+
+            <button onclick="loadRejectedWorkflows()">Rejected</button>
+
+        </div>
+
+        <br>
+
+        <!-- Workflow Table -->
+
+        <div class="card">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>Workflow ID</th>
+                    <th>Request ID</th>
+                    <th>Current Level</th>
+                    <th>Approver</th>
+                    <th>Status</th>
+                    <th>Approve</th>
+                    <th>Reject</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="workflowTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <br>
+
+        <!-- Approval Form -->
+
+        <div class="card">
+
+            <h2>Approve / Reject Request</h2>
+
+            <input type="hidden" id="requestId">
+
+            <div class="form-group">
+
+                <label>Approver ID</label>
+
+                <input
+                        type="number"
+                        id="approverId"
+                        placeholder="Enter Approver ID">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Remarks</label>
+
+                <textarea
+                        id="remarks"
+                        rows="4"
+                        placeholder="Enter Remarks"></textarea>
+
+            </div>
+
+            <button onclick="approveRequest()">
+                Approve
+            </button>
+
+            <button onclick="rejectRequest()">
+                Reject
+            </button>
+
+            <button onclick="clearWorkflowForm()">
+                Clear
+            </button>
+
+            <p id="message"></p>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="workflow.js"></script>
+
+</body>
+</html>
