@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Approval History</title>
+
+    <link rel="stylesheet"
+          href="my-history.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================
+     SIDEBAR
+========================================= -->
+
+<aside class="sidebar">
+
+    <h2>Procurement</h2>
+
+    <ul>
+
+        <li>
+            <a href="employee-dashboard.html">
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="purchase-requisition.html">
+                Create Purchase Request
+            </a>
+        </li>
+
+        <li>
+            <a href="my-requests.html">
+                My Requests
+            </a>
+        </li>
+
+        <li>
+            <a href="my-history.html"
+               class="active">
+                My Approval History
+            </a>
+        </li>
+
+        <li>
+            <a href="login.html"
+               onclick="logout()">
+                Logout
+            </a>
+        </li>
+
+    </ul>
+
+</aside>
+
+
+<!-- =========================================
+     MAIN CONTENT
+========================================= -->
+
+<main class="main-content">
+
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <div>
+
+            <h1>My Approval History</h1>
+
+            <p>
+                Approval status of your purchase requests
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================
+         TABLE
+    ====================================== -->
+
+    <section class="table-section">
+
+        <div class="table-header">
+
+            <h2>
+                Approval History
+            </h2>
+
+            <button
+                onclick="loadHistory()"
+                class="refresh-btn">
+
+                Refresh
+
+            </button>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>History ID</th>
+
+                        <th>Request ID</th>
+
+                        <th>Employee</th>
+
+                        <th>Approved By</th>
+
+                        <th>Role</th>
+
+                        <th>Action</th>
+
+                        <th>Comments</th>
+
+                        <th>Date</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="historyTable">
+
+                    <!-- JavaScript loads data -->
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script src="my-history.js"></script>
+
+
+</body>
+
+</html>

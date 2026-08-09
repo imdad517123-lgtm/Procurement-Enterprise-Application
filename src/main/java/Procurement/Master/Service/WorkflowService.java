@@ -1,20 +1,19 @@
 package Procurement.Master.Service;
 
-
-
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import Procurement.Master.Entity.ApprovalHierarchy;
 import Procurement.Master.Entity.ApprovalHistory;
 import Procurement.Master.Entity.Employee;
-import Procurement.Master.Entity.PurchaseRequisition;
 import Procurement.Master.Entity.Workflow;
-import Procurement.Master.Exception.ResourceNotFoundException;
 import Procurement.Master.Repository.ApprovalHistoryRepository;
+import Procurement.Master.Repository.ApproverHierarchyRepository;
 import Procurement.Master.Repository.EmployeeRepository;
 import Procurement.Master.Repository.PurchaseRequisitionRepository;
 import Procurement.Master.Repository.WorkflowRepository;
@@ -23,160 +22,442 @@ import Procurement.Master.Repository.WorkflowRepository;
 public class WorkflowService {
 
     @Autowired
+    private ApproverHierarchyRepository app;
+
+    @Autowired
     private WorkflowRepository workflowRepository;
 
     @Autowired
     private PurchaseRequisitionRepository requisitionRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeRepository emp;
 
     @Autowired
     private ApprovalHistoryRepository approvalHistoryRepository;
 
+
+    // =====================================================
+    // GET PENDING REQUESTS FOR LOGGED USER
+    // =====================================================
+
+    public List<Workflow> getPendingRequests(Employee employee) {
+
+        return workflowRepository
+                .findByCurrentApproverAndWorkflowStatus(
+                        employee,
+                        "PENDING");
+    }
+
+
+    // =====================================================
     // APPROVE REQUEST
-    public void approveRequest(Long requestId, Long approverId, String remarks) {
+    // =====================================================
 
-        PurchaseRequisition requisition = requisitionRepository.findById(requestId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Purchase Requisition Not Found"));
+    @Transactional
+    public String approveRequest(
+            Long requestId,
+            Employee employee,
+            String remarks) {
 
-        Workflow workflow = workflowRepository.findByRequisition(requisition)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Workflow Not Found"));
+        Workflow workflow =
+                workflowRepository
+                        .findByRequisition_RequestId(requestId);
 
-        Employee approver = employeeRepository.findById(approverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Approver Not Found"));
-
-        // Employee cannot approve own request
-        if (requisition.getEmployee().getEmployeeId().equals(approverId)) {
-            throw new RuntimeException("Employees cannot approve their own requests.");
+        if (workflow == null) {
+            throw new RuntimeException("Workflow not found");
         }
 
-        // Only assigned approver
-        if (!workflow.getCurrentApprover().getEmployeeId().equals(approverId)) {
-            throw new RuntimeException("You are not authorized to approve this request.");
+
+        // =================================================
+        // AUTHORIZATION CHECK
+        // =================================================
+
+        if (workflow.getCurrentApprover() == null) {
+            throw new RuntimeException(
+                    "No approver assigned to this request");
         }
 
-        // Save Approval History
-        ApprovalHistory history = new ApprovalHistory();
-        history.setRequisition(requisition);
-        history.setApprover(approver);
-        history.setAction("APPROVED");
-        history.setRemarks(remarks);
-        history.setActionDate(LocalDateTime.now());
+        if (!workflow.getCurrentApprover()
+                .getEmployeeId()
+                .equals(employee.getEmployeeId())) {
 
-        approvalHistoryRepository.save(history);
-
-        // Level 1 -> Procurement Officer
-        if (workflow.getCurrentLevel() == 1) {
-
-            Employee procurementOfficer =
-                    employeeRepository.findByRole("PROCUREMENT_OFFICER")
-                    .orElseThrow(() ->
-                        new ResourceNotFoundException("Procurement Officer Not Found"));
-
-            workflow.setCurrentLevel(2);
-            workflow.setCurrentApprover(procurementOfficer);
-            workflow.setWorkflowStatus("PENDING");
-            requisition.setStatus("PENDING");
+            throw new RuntimeException(
+                    "You are not authorized to approve this request");
         }
-        // Level 2 -> Finance
-        else if (workflow.getCurrentLevel() == 2) {
 
-            Employee finance =
-                    employeeRepository.findByRole("FINANCE")
-                    .orElseThrow(() ->
-                        new ResourceNotFoundException("Finance Not Found"));
 
-            workflow.setCurrentLevel(3);
-            workflow.setCurrentApprover(finance);
-            workflow.setWorkflowStatus("PENDING");
+        // =================================================
+        // MANAGER APPROVAL
+        // =================================================
+
+        if ("MANAGER".equalsIgnoreCase(employee.getRole())) {
+
+            workflow.getRequisition()
+                    .setStatus("MANAGER_APPROVED");
+
+            requisitionRepository
+                    .save(workflow.getRequisition());
+
+            // Save history
+            saveApprovalHistory(
+                    workflow.getRequisition(),
+                    employee,
+                    "MANAGER_APPROVED",
+                    remarks,
+                    "Approved by Manager");
+
+
+            // Find next approval level
+            int nextLevel =
+                    workflow.getCurrentLevel() + 1;
+
+            Optional<ApprovalHierarchy> nextHierarchy =
+                    app.findByLevel(nextLevel);
+
+
+            if (nextHierarchy.isPresent()) {
+
+                ApprovalHierarchy hierarchy =
+                        nextHierarchy.get();
+
+                Employee nextApprover =
+                        emp.findByRole(
+                                hierarchy.getRole())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Next Approver Not Found"));
+
+
+                workflow.setCurrentLevel(nextLevel);
+
+                workflow.setCurrentApprover(
+                        nextApprover);
+
+                workflow.setApprovalHierarchy(
+                        hierarchy);
+
+                workflow.setWorkflowStatus(
+                        "PENDING");
+
+            } else {
+
+                workflow.setWorkflowStatus(
+                        "APPROVED");
+
+                workflow.setCurrentApprover(
+                        null);
+            }
         }
-        // Final Approval
+
+
+        // =================================================
+        // PROCUREMENT OFFICER APPROVAL
+        // =================================================
+
+        else if ("PROCUREMENT_OFFICER"
+                .equalsIgnoreCase(employee.getRole())) {
+
+            workflow.getRequisition()
+                    .setStatus("PROCUREMENT_APPROVED");
+
+            requisitionRepository
+                    .save(workflow.getRequisition());
+
+
+            // Save history
+            saveApprovalHistory(
+                    workflow.getRequisition(),
+                    employee,
+                    "PROCUREMENT_APPROVED",
+                    remarks,
+                    "Approved by Procurement Officer");
+
+
+            // ---------------------------------------------
+            // Move to next level
+            // ---------------------------------------------
+
+            int nextLevel =
+                    workflow.getCurrentLevel() + 1;
+
+            Optional<ApprovalHierarchy> nextHierarchy =
+                    app.findByLevel(nextLevel);
+
+
+            if (nextHierarchy.isPresent()) {
+
+                ApprovalHierarchy hierarchy =
+                        nextHierarchy.get();
+
+                Employee nextApprover =
+                        emp.findByRole(
+                                hierarchy.getRole())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Next Approver Not Found"));
+
+
+                workflow.setCurrentLevel(
+                        nextLevel);
+
+                workflow.setCurrentApprover(
+                        nextApprover);
+
+                workflow.setApprovalHierarchy(
+                        hierarchy);
+
+                workflow.setWorkflowStatus(
+                        "PENDING");
+
+            } else {
+
+                workflow.setWorkflowStatus(
+                        "APPROVED");
+
+                workflow.setCurrentApprover(
+                        null);
+            }
+        }
+
+
+        // =================================================
+        // OTHER APPROVAL ROLES
+        // =================================================
+
         else {
 
-            workflow.setWorkflowStatus("APPROVED");
-            requisition.setStatus("APPROVED");
+            workflow.getRequisition()
+                    .setStatus("FINANCE_APPROVED");
+
+            requisitionRepository
+                    .save(workflow.getRequisition());
+
+
+            saveApprovalHistory(
+                    workflow.getRequisition(),
+                    employee,
+                    "FINANCE_APPROVED",
+                    remarks,
+                    "Approved by Finance Manager");
+
+
+            workflow.setWorkflowStatus(
+                    "APPROVED");
+
+            workflow.setCurrentApprover(
+                    null);
         }
 
+
+        // =================================================
+        // SAVE WORKFLOW
+        // =================================================
+
         workflowRepository.save(workflow);
-        requisitionRepository.save(requisition);
+
+        return "Request Approved Successfully";
     }
 
+
+    // =====================================================
     // REJECT REQUEST
-    public void rejectRequest(Long requestId, Long approverId, String remarks) {
+    // =====================================================
 
-        PurchaseRequisition requisition = requisitionRepository.findById(requestId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Purchase Requisition Not Found"));
+    @Transactional
+    public String rejectRequest(
+            Long requestId,
+            Employee employee,
+            String remarks) {
 
-        Workflow workflow = workflowRepository.findByRequisition(requisition)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Workflow Not Found"));
+        Workflow workflow =
+                workflowRepository
+                        .findByRequisition_RequestId(requestId);
 
-        Employee approver = employeeRepository.findById(approverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Approver Not Found"));
-
-        if (!workflow.getCurrentApprover().getEmployeeId().equals(approverId)) {
-            throw new RuntimeException("Unauthorized Rejection");
+        if (workflow == null) {
+            throw new RuntimeException(
+                    "Workflow not found");
         }
 
-        ApprovalHistory history = new ApprovalHistory();
 
-        history.setRequisition(requisition);
-        history.setApprover(approver);
-        history.setAction("REJECTED");
-        history.setRemarks(remarks);
-        history.setActionDate(LocalDateTime.now());
+        // =================================================
+        // AUTHORIZATION CHECK
+        // =================================================
 
-        approvalHistoryRepository.save(history);
+        if (workflow.getCurrentApprover() == null) {
+            throw new RuntimeException(
+                    "No approver assigned to this request");
+        }
 
-        workflow.setWorkflowStatus("REJECTED");
-        requisition.setStatus("REJECTED");
+        if (!workflow.getCurrentApprover()
+                .getEmployeeId()
+                .equals(employee.getEmployeeId())) {
+
+            throw new RuntimeException(
+                    "Not Authorized");
+        }
+
+
+        // =================================================
+        // UPDATE WORKFLOW
+        // =================================================
+
+        workflow.setWorkflowStatus(
+                "REJECTED");
+
+        workflow.setCurrentApprover(
+                null);
+
+
+        // =================================================
+        // UPDATE REQUEST
+        // =================================================
+
+        workflow.getRequisition()
+                .setStatus("REJECTED");
+
+        requisitionRepository
+                .save(workflow.getRequisition());
+
+
+        // =================================================
+        // SAVE APPROVAL HISTORY
+        // =================================================
+
+        String action;
+
+        String defaultRemarks;
+
+
+        if ("MANAGER".equalsIgnoreCase(
+                employee.getRole())) {
+
+            action = "MANAGER_REJECTED";
+
+            defaultRemarks =
+                    "Rejected by Manager";
+
+        } else if ("PROCUREMENT_OFFICER"
+                .equalsIgnoreCase(employee.getRole())) {
+
+            action = "PROCUREMENT_REJECTED";
+
+            defaultRemarks =
+                    "Rejected by Procurement Officer";
+
+        } else {
+
+            action = "FINANCE_REJECTED";
+
+            defaultRemarks =
+                    "Rejected by Finance Manager";
+        }
+
+
+        saveApprovalHistory(
+                workflow.getRequisition(),
+                employee,
+                action,
+                remarks,
+                defaultRemarks);
+
+
+        // =================================================
+        // SAVE WORKFLOW
+        // =================================================
 
         workflowRepository.save(workflow);
-        requisitionRepository.save(requisition);
+
+        return "Request Rejected Successfully";
     }
 
-    // WORKFLOW STATUS
-    public Workflow getWorkflow(Long requestId) {
 
-        PurchaseRequisition requisition = requisitionRepository.findById(requestId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Purchase Requisition Not Found"));
+    // =====================================================
+    // SAVE APPROVAL HISTORY
+    // =====================================================
 
-        return workflowRepository.findByRequisition(requisition)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Workflow Not Found"));
+    private void saveApprovalHistory(
+            Procurement.Master.Entity.PurchaseRequisition requisition,
+            Employee employee,
+            String action,
+            String remarks,
+            String defaultRemarks) {
+
+        ApprovalHistory history =
+                new ApprovalHistory();
+
+        history.setRequisition(
+                requisition);
+
+        history.setApprover(
+                employee);
+
+        history.setAction(
+                action);
+
+        if (remarks == null ||
+                remarks.isBlank()) {
+
+            history.setRemarks(
+                    defaultRemarks);
+
+        } else {
+
+            history.setRemarks(
+                    remarks);
+        }
+
+        history.setActionDate(
+                LocalDateTime.now());
+
+        approvalHistoryRepository
+                .save(history);
     }
 
-    // APPROVAL HISTORY
-    public List<ApprovalHistory> getApprovalHistory(Long requestId) {
 
-        PurchaseRequisition requisition = requisitionRepository.findById(requestId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Purchase Requisition Not Found"));
+    // =====================================================
+    // GET ONE WORKFLOW
+    // =====================================================
 
-        return approvalHistoryRepository.findByRequisition(requisition);
+    public Workflow getWorkflow(
+            Long requestId) {
+
+        return workflowRepository
+                .findByRequisition_RequestId(
+                        requestId);
     }
 
-    // PENDING WORKFLOWS
-    public List<Workflow> getPendingRequests() {
-        return workflowRepository.findByWorkflowStatus("PENDING");
-    }
 
-    // APPROVED WORKFLOWS
-    public List<Workflow> getApprovedRequests() {
-        return workflowRepository.findByWorkflowStatus("APPROVED");
-    }
+    // =====================================================
+    // GET ALL WORKFLOWS
+    // =====================================================
+
     public List<Workflow> getAllWorkflows() {
+
         return workflowRepository.findAll();
     }
-    // REJECTED WORKFLOWS
+
+
+    // =====================================================
+    // APPROVED
+    // =====================================================
+
+    public List<Workflow> getApprovedRequests() {
+
+        return workflowRepository
+                .findByWorkflowStatus(
+                        "APPROVED");
+    }
+
+
+    // =====================================================
+    // REJECTED
+    // =====================================================
+
     public List<Workflow> getRejectedRequests() {
-        return workflowRepository.findByWorkflowStatus("REJECTED");
+
+        return workflowRepository
+                .findByWorkflowStatus(
+                        "REJECTED");
     }
 }

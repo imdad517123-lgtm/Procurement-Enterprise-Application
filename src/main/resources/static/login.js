@@ -1,100 +1,114 @@
-	const API = "http://localhost:8080/api/auth/login";
-	
-	function login() {
-	
-	    const loginData = {
-	
-	        email: document.getElementById("email").value,
-	
-	        password: document.getElementById("password").value,
-	
-	        role: document.getElementById("role").value
-	
-	    };
-	
-	    fetch(API,{
-	
-	        method:"POST",
-	
-	        headers:{
-	            "Content-Type":"application/json"
-	        },
-	
-	        body:JSON.stringify(loginData)
-	
-	    })
-	
-		.then(async response => {
-	
-		    let data;
-	
-		    const contentType = response.headers.get("content-type");
-	
-		    if (contentType && contentType.includes("application/json")) {
-	
-		        data = await response.json();
-	
-		    } else {
-	
-		        data = {
-		            message: await response.text()
-		        };
-	
-		    }
-	
-	
-		    if (response.ok) {
-	
-		        document.getElementById("message").style.color = "green";
-		        document.getElementById("message").innerHTML = data.message;
-	
-	
-		        localStorage.setItem("employeeId", data.employeeId);
-		        localStorage.setItem("employeeCompanyId", data.employeeCompanyId);
-		        localStorage.setItem("employeeName", data.employeeName);
-		        localStorage.setItem("email", data.email);
-		        localStorage.setItem("role", data.role);
-	
-	
-				setTimeout(() => {
+const API_URL = "http://localhost:9090/api/auth/login";
 
-				    if (data.role === "PROCUREMENT_OFFICER") {
+async function login() {
 
-				        window.location.href = "dashboard.html";
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const role = document.getElementById("role").value;
 
-				    } else if (data.role === "MANAGER") {
+    const message = document.getElementById("message");
+    message.innerHTML = "";
 
-				        window.location.href = "manager-dashboard.html";
+    if (email === "" || password === "" || role === "") {
+        message.style.color = "red";
+        message.innerHTML = "Please fill all fields.";
+        return;
+    }
 
-				    } else if (data.role === "EMPLOYEE") {
+    try {
 
-				        window.location.href = "employee.html";
+        const response = await fetch(API_URL, {
 
-				    } else {
+            method: "POST",
 
-				        document.getElementById("message").style.color = "red";
-				        document.getElementById("message").innerHTML = "Invalid Role";
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-				    }
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                role: role
+            })
 
-				}, 1000);
-	
-	
-		    } else {
-	
-		        document.getElementById("message").style.color = "red";
-		        document.getElementById("message").innerHTML = data.message;
-	
-		    }
-	
-		})
-	    .catch(error=>{
-	
-	        document.getElementById("message").style.color="red";
-	        document.getElementById("message").innerHTML="Unable to connect to server.";
-	
-	        console.log(error);
-	
-	    });
-	
-	}
+        });
+
+        const data = await response.json();
+		console.log("Login Response:", data);
+		alert(JSON.stringify(data));
+        if (!response.ok) {
+            message.style.color = "red";
+            message.innerHTML = data.message || "Invalid Email or Password";
+            return;
+        }
+
+        // Clear old session
+        localStorage.clear();
+
+        // Common data
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("role", data.role);
+
+        // Employee Login
+        if (data.role !== "SUPPLIER") {
+
+            localStorage.setItem("employeeId", data.employeeId);
+            localStorage.setItem("employeeCompanyId", data.employeeCompanyId);
+            localStorage.setItem("employeeName", data.employeeName);
+
+        }
+
+        // Supplier Login
+        if (data.role === "SUPPLIER") {
+
+            localStorage.setItem("supplierId", data.supplierId);
+			alert("Saved Supplier ID = " + localStorage.getItem("supplierId"));
+            localStorage.setItem("supplierName", data.supplierName);
+
+        }
+
+        message.style.color = "green";
+        message.innerHTML = "Login Successful...";
+
+        setTimeout(() => {
+
+            switch (data.role) {
+
+                case "EMPLOYEE":
+                    window.location.href = "employee-dashboard.html";
+                    break;
+
+                case "MANAGER":
+                    window.location.href = "manager-dashboard.html";
+                    break;
+
+                case "PROCUREMENT_OFFICER":
+                    window.location.href = "procurement.html";
+                    break;
+
+                case "FINANCE":
+                    window.location.href = "finance.html";
+                    break;
+
+                case "SUPPLIER":
+                    window.location.href = "supplier.html";
+                    break;
+
+                default:
+                    message.style.color = "red";
+                    message.innerHTML = "Invalid Role";
+                    break;
+            }
+
+        }, 1000);
+
+    } catch (error) {
+
+        console.error(error);
+
+        message.style.color = "red";
+        message.innerHTML = "Unable to connect to the server.";
+
+    }
+}

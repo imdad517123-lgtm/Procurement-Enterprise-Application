@@ -24,7 +24,17 @@ public class ApprovalHistory {
     private String remarks;
 
     private LocalDateTime actionDate;
+    @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
 
+    public Supplier getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(Supplier supplier) {
+        this.supplier = supplier;
+    }
     public ApprovalHistory() {
     }
 

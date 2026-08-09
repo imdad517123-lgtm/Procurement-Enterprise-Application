@@ -1,54 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Manager Dashboard</title>
+    <title>Manager Dashboard</title>
 
-<link rel="stylesheet" href="manager.css">
+    <link rel="stylesheet" href="manager-dashboard.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 </head>
+
 <body>
 
 <div class="container">
 
-    <div class="header">
+    <!-- Sidebar -->
 
-        <h2>Manager Approval Dashboard</h2>
+    <aside class="sidebar">
 
-        <button onclick="logout()">Logout</button>
+        <div class="logo">
 
-    </div>
+            <h2>Procurement</h2>
 
-    <table>
+        </div>
 
-        <thead>
+        <ul class="menu">
 
-        <tr>
+            <li class="active">
 
-            <th>Request ID</th>
-            <th>Employee</th>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th>Estimated Cost</th>
-            <th>Status</th>
-            <th>Action</th>
+                <a href="manager-dashboard.html">
 
-        </tr>
+                    <i class="fa-solid fa-house"></i>
 
-        </thead>
+                    Dashboard
 
-        <tbody id="requestTable">
+                </a>
 
-        </tbody>
+            </li>
 
-    </table>
+            <li>
+
+                <a href="approval-history.html">
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    Approval History
+
+                </a>
+
+            </li>
+
+        </ul>
+
+        <button class="logout-btn" onclick="logout()">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            Logout
+
+        </button>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <!-- Header -->
+
+        <header class="header">
+
+            <div>
+
+                <h1>Manager Dashboard</h1>
+
+                <p>Purchase Requisition Approval System</p>
+
+            </div>
+
+            <div class="profile">
+
+                <i class="fa-solid fa-user-tie"></i>
+
+                <div>
+
+                    <h3>Manager</h3>
+
+                    <span>Approval Authority</span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Dashboard Cards -->
+
+        <section class="cards">
+
+            <div class="card total">
+
+                <i class="fa-solid fa-file-lines"></i>
+
+                <h3>Total Requests</h3>
+
+                <h2 id="totalRequests">0</h2>
+
+            </div>
+
+            <div class="card pending">
+
+                <i class="fa-solid fa-hourglass-half"></i>
+
+                <h3>Pending</h3>
+
+                <h2 id="pendingRequests">0</h2>
+
+            </div>
+
+            <div class="card approved">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                <h3>Approved</h3>
+
+                <h2 id="approvedRequests">0</h2>
+
+            </div>
+
+            <div class="card rejected">
+
+                <i class="fa-solid fa-circle-xmark"></i>
+
+                <h3>Rejected</h3>
+
+                <h2 id="rejectedRequests">0</h2>
+
+            </div>
+
+        </section>
+
+        <!-- Table -->
+
+        <section class="table-section">
+
+            <div class="table-header">
+
+                <h2>
+
+                    <i class="fa-solid fa-list-check"></i>
+
+                    Pending Purchase Requests
+
+                </h2>
+
+                <button class="refresh-btn" onclick="loadPendingRequests()">
+
+                    <i class="fa-solid fa-rotate"></i>
+
+                    Refresh
+
+                </button>
+
+            </div>
+
+            <table>
+
+                <thead>
+
+					<tr>
+
+					    <th>Request ID</th>
+					    <th>Employee</th>
+					    <th>Item</th>
+					    <th>Quantity</th>
+					    <th>Estimated Cost</th>
+					    <th>Status</th>
+					    <th>Action</th>
+
+					</tr>
+
+                </thead>
+
+                <tbody id="requestTable">
+
+                    <!-- Loaded from JavaScript -->
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
 
 </div>
 
-<script src="manager.js"></script>
+<script src="manager-dashboard.js"></script>
 
 </body>
+
 </html>

@@ -32,7 +32,7 @@ public class ManagerService {
         PurchaseRequisition request = managerRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request Not Found"));
 
-        request.setStatus("PENDING");
+        request.setStatus("MANAGER_APPROVED");
         managerRepository.save(request);
 
         Employee manager = employeeRepository.findByRole("MANAGER")
@@ -42,7 +42,7 @@ public class ManagerService {
 
         history.setRequisition(request);
         history.setApprover(manager);
-        history.setAction("APPROVED");
+        history.setAction("MANAGER_APPROVED");
         history.setRemarks("Successfully Approved by Manager");
         history.setActionDate(LocalDateTime.now());
 
@@ -66,7 +66,7 @@ public class ManagerService {
 
         history.setRequisition(request);
         history.setApprover(manager);
-        history.setAction("REJECTED");
+        history.setAction("MANAGER_REJECTED");
         history.setRemarks("Rejected by Manager");
         history.setActionDate(LocalDateTime.now());
 

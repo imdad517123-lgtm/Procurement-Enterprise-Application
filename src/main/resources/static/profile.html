@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile</title>
+
+    <link rel="stylesheet" href="supplier.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>Procurement</h2>
+
+        <ul>
+
+            <li>
+                <a href="employee-dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="employee-purchase-requisition.html">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Purchase Request
+                </a>
+            </li>
+
+            <li>
+                <a href="my-requests.html">
+                    <i class="fa-solid fa-list"></i>
+                    My Requests
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="#" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="content">
+
+        <h1>My Profile</h1>
+
+        <div class="profile-card">
+
+            <div class="row">
+                <label>Employee ID</label>
+                <span id="employeeId"></span>
+            </div>
+
+            <div class="row">
+                <label>Company ID</label>
+                <span id="companyId"></span>
+            </div>
+
+            <div class="row">
+                <label>Name</label>
+                <span id="employeeName"></span>
+            </div>
+
+            <div class="row">
+                <label>Email</label>
+                <span id="email"></span>
+            </div>
+
+            <div class="row">
+                <label>Department</label>
+                <span id="department"></span>
+            </div>
+
+            <div class="row">
+                <label>Role</label>
+                <span id="role"></span>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="profile.js"></script>
+
+</body>
+
+</html>

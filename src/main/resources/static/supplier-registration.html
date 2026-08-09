@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Supplier Registration</title>
+
+    <link rel="stylesheet" href="login.css">
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-box">
+
+        <h2>Supplier Registration</h2>
+
+        <form id="supplierForm">
+
+            <!-- SUPPLIER NAME -->
+
+            <div class="form-group">
+
+                <label>Supplier Name</label>
+
+                <input
+                    type="text"
+                    id="supplierName"
+                    placeholder="Enter Supplier Name">
+
+                <small
+                    id="supplierNameError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter Email">
+
+                <small
+                    id="emailError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label>Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter Password">
+
+                <small
+                    id="passwordError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- PHONE -->
+
+            <div class="form-group">
+
+                <label>Phone Number</label>
+
+                <input
+                    type="text"
+                    id="phone"
+                    placeholder="Enter 10 digit phone number"
+                    maxlength="10">
+
+                <small
+                    id="phoneError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- GST -->
+
+            <div class="form-group">
+
+                <label>GST Number</label>
+
+                <input
+                    type="text"
+                    id="gstNumber"
+                    placeholder="Enter GST Number"
+                    maxlength="15"
+                    style="text-transform:uppercase;">
+
+                <small
+                    id="gstError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- PAN -->
+
+            <div class="form-group">
+
+                <label>PAN Number</label>
+
+                <input
+                    type="text"
+                    id="panNumber"
+                    placeholder="Enter PAN Number"
+                    maxlength="10"
+                    style="text-transform:uppercase;">
+
+                <small
+                    id="panError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- CITY -->
+
+            <div class="form-group">
+
+                <label>City</label>
+
+                <input
+                    type="text"
+                    id="city"
+                    placeholder="Enter City">
+
+                <small
+                    id="cityError"
+                    style="color:red;">
+                </small>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <p id="message"></p>
+
+
+            <!-- BUTTON -->
+
+            <button
+                type="submit"
+                id="registerButton">
+
+                Register Supplier
+
+            </button>
+
+
+            <!-- LOGIN -->
+
+            <p style="margin-top:15px;text-align:center;">
+
+                Already have an account?
+
+                <a href="login.html">
+                    Login Here
+                </a>
+
+            </p>
+
+
+            <!-- BACK -->
+
+            <p style="text-align:center;">
+
+                <a href="register.html">
+                    Back to Employee Registration
+                </a>
+
+            </p>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script src="supplier-registration.js"></script>
+
+</body>
+
+</html>

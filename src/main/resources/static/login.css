@@ -7,12 +7,21 @@
 
 body{
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
     background:#f4f6f9;
 
+    display:flex;
+    justify-content:center;
+
+    /* Start from top instead of center */
+    align-items:flex-start;
+
+    /* Allow page to grow */
+    min-height:100vh;
+
+    /* Space above and below */
+    padding:40px 0;
+
+    overflow-y:auto;
 }
 
 .login-container{
@@ -25,7 +34,7 @@ body{
 
 .login-box{
 
-    width:400px;
+    width:420px;
     background:white;
     padding:30px;
     border-radius:10px;

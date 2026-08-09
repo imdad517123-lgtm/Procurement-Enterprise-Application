@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Requests</title>
+
+<link rel="stylesheet" href="employee-dashboard.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <aside class="sidebar">
+
+        <h2>Procurement</h2>
+
+        <ul>
+            <li><a href="employee-dashboard.html">Dashboard</a></li>
+            <li><a href="purchase-requisition.html">Create Purchase Request</a></li>
+            <li><a href="my-requests.html" class="active">My Requests</a></li>
+            <li><a href="my-history.html">Approval History</a></li>
+            <li><a href="login.html">Logout</a></li>
+        </ul>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <h1>My Purchase Requests</h1>
+        </header>
+
+        <div class="table-section">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Request ID</th>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Estimated Cost</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="requestTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="my-requests.js"></script>
+
+</body>
+</html>

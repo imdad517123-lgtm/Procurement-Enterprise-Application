@@ -1,93 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approval History</title>
+    <title>Manager Approval History</title>
 
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="approval-history.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Procurement</h2>
+        <!-- ================= SIDEBAR ================= -->
 
-        <a href="index.html">Dashboard</a>
-        <a href="employee.html">Employees</a>
-        <a href="purchase-requisition.html">Purchase Requisition</a>
-        <a href="workflow.html">Workflow</a>
-        <a href="approval-history.html" class="active">Approval History</a>
-    </div>
+        <div class="sidebar">
 
-    <!-- Main Content -->
-	<div class="main-content">
-
-        <div class="header">
-            <h1>Approval History</h1>
-        </div>
-
-        <div class="card">
-
-            <h2>Search Approval History</h2>
-
-            <div class="form-group">
-                <label>Purchase Requisition ID</label>
-
-                <input
-                    type="number"
-                    id="requestId"
-                    placeholder="Enter Requisition ID">
+            <div class="logo">
+                <h2>Procurement</h2>
             </div>
 
-            <button onclick="loadHistory()">
-                Search
-            </button>
+            <ul class="menu">
 
-            <button onclick="clearHistory()">
-                Clear
-            </button>
+                <li>
+                    <a href="manager-dashboard.html">
+                        <i class="fa-solid fa-house"></i>
+                        Dashboard
+                    </a>
+                </li>
 
-            <p id="message"></p>
+                <li class="active">
+                    <a href="approval-history.html">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        Approval History
+                    </a>
+                </li>
+
+            </ul>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </button>
 
         </div>
 
-        <br>
+        <!-- ================= MAIN CONTENT ================= -->
 
-        <div class="card">
+        <div class="main-content">
 
-            <h2>Approval History</h2>
+            <!-- HEADER -->
 
-            <table>
+            <header class="header">
 
-                <thead>
+                <div>
+                    <h1>Approval History</h1>
+                    <p>View All Purchase Requisition Approval History</p>
+                </div>
 
-                <tr>
-                    <th>History ID</th>
-                    <th>Approver ID</th>
-                    <th>Approver Name</th>
-                    <th>Action</th>
-                    <th>Remarks</th>
-                    <th>Action Date</th>
-                </tr>
+                <div class="profile">
+                    <i class="fa-solid fa-user-tie"></i>
 
-                </thead>
+                    <div>
+                        <h3>Manager</h3>
+                        <span>Approval Authority</span>
+                    </div>
+                </div>
 
-                <tbody id="historyTable">
+            </header>
 
-                </tbody>
+            <!-- TABLE -->
 
-            </table>
-			
+            <section class="table-card">
+
+                <div class="table-header">
+
+                    <h2>
+                        <i class="fa-solid fa-list-check"></i>
+                        Approval History
+                    </h2>
+
+                    <br>
+
+                    <button class="refresh-btn" onclick="loadHistory()">
+                        <i class="fa-solid fa-rotate"></i>
+                        Refresh
+                    </button>
+
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>History ID</th>
+                                <th>Request ID</th>
+                                <th>Employee</th>
+                                <th>Approved By</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Comments</th>
+                                <th>Action Date</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="historyTable">
+
+                            <!-- Loaded by JavaScript -->
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
         </div>
 
     </div>
 
-</div>
+    <script src="approval-history.js"></script>
 
-<script src="approval-history.js"></script>
+    <script>
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
 
 </body>
+
 </html>

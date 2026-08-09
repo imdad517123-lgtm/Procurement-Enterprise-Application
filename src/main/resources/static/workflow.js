@@ -1,253 +1,211 @@
-	const API_URL = "http://localhost:8080/api/workflow";
-	
-	window.onload = function () {
-	    loadAllWorkflows();
-	};
-	
-	// =============================
-	// Load All Workflows
-	// =============================
-	function loadAllWorkflows() {
-	
-	    fetch(API_URL)
-	        .then(response => response.json())
-	        .then(data => {
-	            console.log("Workflows:", data);
-	            displayWorkflows(data);
-	        })
-	        .catch(error => console.error(error));
-	
-	}
-	// =============================
-	// Load Pending
-	// =============================
-	function loadPendingWorkflows() {
-	
-	    fetch(API_URL + "/pending")
-	        .then(response => response.json())
-	        .then(data => displayWorkflows(data))
-	        .catch(error => console.error(error));
-	}
-	
-	// =============================
-	// Load Approved
-	// =============================
-	function loadApprovedWorkflows() {
-	
-	    fetch(API_URL + "/approved")
-	        .then(response => response.json())
-	        .then(data => displayWorkflows(data))
-	        .catch(error => console.error(error));
-	}
-	
-	// =============================
-	// Load Rejected
-	// =============================
-	function loadRejectedWorkflows() {
-	
-	    fetch(API_URL + "/rejected")
-	        .then(response => response.json())
-	        .then(data => displayWorkflows(data))
-	        .catch(error => console.error(error));
-	}
-	// =============================
-	// Display Table
-	// =============================
-	function displayWorkflows(workflows) {
+// ============================================
+// Workflow JavaScript (JWT Version)
+// ============================================
 
-	    const table = document.getElementById("workflowTable");
-	    table.innerHTML = "";
+const API_URL = "http://localhost:9090/api/workflow";
 
-	    workflows.forEach(workflow => {
+const token = localStorage.getItem("token");
 
-	        let actionButtons = "";
+if (!token) {
+    alert("Please login first.");
+    window.location.href = "login.html";
+}
 
-	        if (workflow.workflowStatus === "PENDING") {
+// ============================================
+// Load Pending Workflows
+// ============================================
 
-	            actionButtons = `
-	                <td>
-	                    <button onclick="selectRequest(${workflow.requisition.requestId})">
-	                        Approve
-	                    </button>
-	                </td>
+window.onload = function () {
+    loadPendingWorkflows();
+};
 
-	                <td>
-	                    <button onclick="selectRequest(${workflow.requisition.requestId})">
-	                        Reject
-	                    </button>
-	                </td>
-	            `;
+async function loadPendingWorkflows() {
 
-	        } else {
+    try {
 
-	            actionButtons = `
-	                <td>-</td>
-	                <td>-</td>
-	            `;
+        const response = await fetch(API_URL + "/pending", {
 
-	        }
+            method: "GET",
 
-	        table.innerHTML += `
-	            <tr>
+            headers: {
+                "Authorization": "Bearer " + token
+            }
 
-	                <td>${workflow.workflowId}</td>
+        });
 
-	                <td>${workflow.requisition.requestId}</td>
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
 
-	                <td>${workflow.currentLevel}</td>
+        const workflows = await response.json();
 
-	                <td>${workflow.currentApprover.employeeName}</td>
+        displayWorkflows(workflows);
 
-	                <td>${workflow.workflowStatus}</td>
+    } catch (error) {
 
-	                ${actionButtons}
+        console.error(error);
+        alert(error.message);
 
-	            </tr>
-	        `;
+    }
 
-	    });
+}
 
-	}
-	// =============================
-	// Select Request
-	// =============================
-	function selectRequest(requestId) {
-	
-	    document.getElementById("requestId").value = requestId;
-	
-	}
-	
-	// =============================
-	// Approve
-	// =============================
-	function approveRequest() {
-	
-	    const requestId = document.getElementById("requestId").value;
-	
-	    if (requestId == "") {
-	
-	        alert("Select a request first.");
-	
-	        return;
-	    }
-	
-	    const request = {
-	
-	        approverId: Number(document.getElementById("approverId").value),
-	
-	        remarks: document.getElementById("remarks").value
-	
-	    };
-	
-	    fetch(API_URL + "/approve/" + requestId, {
-	
-	        method: "PUT",
-	
-	        headers: {
-	
-	            "Content-Type": "application/json"
-	
-	        },
-	
-	        body: JSON.stringify(request)
-	
-	    })
-	
-	    .then(async response => {
-	
-	        const message = await response.text();
-	
-	        document.getElementById("message").innerHTML = message;
-	
-	        if (response.ok) {
-	
-	            clearWorkflowForm();
-	
-	            loadAllWorkflows();
-	
-	        }
-	
-	    })
-	
-	    .catch(error => {
-	
-	        document.getElementById("message").innerHTML = error.message;
-	
-	    });
-	
-	}
-	
-	// =============================
-	// Reject
-	// =============================
-	function rejectRequest() {
-	
-	    const requestId = document.getElementById("requestId").value;
-	
-	    if (requestId == "") {
-	
-	        alert("Select a request first.");
-	
-	        return;
-	    }
-	
-	    const request = {
-	
-	        approverId: Number(document.getElementById("approverId").value),
-	
-	        remarks: document.getElementById("remarks").value
-	
-	    };
-	
-	    fetch(API_URL + "/reject/" + requestId, {
-	
-	        method: "PUT",
-	
-	        headers: {
-	
-	            "Content-Type": "application/json"
-	
-	        },
-	
-	        body: JSON.stringify(request)
-	
-	    })
-	
-	    .then(async response => {
-	
-	        const message = await response.text();
-	
-	        document.getElementById("message").innerHTML = message;
-	
-	        if (response.ok) {
-	
-	            clearWorkflowForm();
-	
-	            loadAllWorkflows();
-	
-	        }
-	
-	    })
-	
-	    .catch(error => {
-	
-	        document.getElementById("message").innerHTML = error.message;
-	
-	    });
-	
-	}
-	
-	// =============================
-	// Clear Form
-	// =============================
-	function clearWorkflowForm() {
-	
-	    document.getElementById("requestId").value = "";
-	
-	    document.getElementById("approverId").value = "";
-	
-	    document.getElementById("remarks").value = "";
-	
-	    document.getElementById("message").innerHTML = "";
+// ============================================
+// Display Workflows
+// ============================================
+
+function displayWorkflows(workflows) {
+
+    const table = document.getElementById("workflowTable");
+
+    table.innerHTML = "";
+
+    workflows.forEach(workflow => {
+
+        table.innerHTML += `
+
+        <tr>
+
+            <td>${workflow.workflowId}</td>
+
+            <td>${workflow.requisition.requestId}</td>
+
+            <td>${workflow.currentLevel}</td>
+
+            <td>${workflow.currentApprover.employeeName}</td>
+
+            <td>${workflow.workflowStatus}</td>
+
+            <td>
+
+                <button onclick="approveRequest(${workflow.requisition.requestId})">
+                    Approve
+                </button>
+
+            </td>
+
+            <td>
+
+                <button onclick="rejectRequest(${workflow.requisition.requestId})">
+                    Reject
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+// ============================================
+// Approve
+// ============================================
+
+async function approveRequest(requestId) {
+
+    const remarks = prompt("Enter approval remarks");
+
+    if (remarks == null)
+        return;
+
+    try {
+
+        const response = await fetch(API_URL + "/approve/" + requestId, {
+
+            method: "PUT",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization": "Bearer " + token
+
+            },
+
+            body: JSON.stringify({
+
+                remarks: remarks
+
+            })
+
+        });
+
+        const message = await response.text();
+
+        alert(message);
+
+        loadPendingWorkflows();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+}
+
+// ============================================
+// Reject
+// ============================================
+
+async function rejectRequest(requestId) {
+
+    const remarks = prompt("Enter rejection remarks");
+
+    if (remarks == null)
+        return;
+
+    try {
+
+        const response = await fetch(API_URL + "/reject/" + requestId, {
+
+            method: "PUT",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization": "Bearer " + token
+
+            },
+
+            body: JSON.stringify({
+
+                remarks: remarks
+
+            })
+
+        });
+
+        const message = await response.text();
+
+        alert(message);
+
+        loadPendingWorkflows();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+}
+
+// ============================================
+// Logout
+// ============================================
+
+function logout() {
+
+    localStorage.clear();
+
+    window.location.href = "login.html";
 
 }

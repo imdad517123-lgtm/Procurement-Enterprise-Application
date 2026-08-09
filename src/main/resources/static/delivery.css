@@ -1,0 +1,199 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#eef2f7;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* Sidebar */
+
+.sidebar{
+    width:260px;
+    background:#1f2937;
+    color:#fff;
+    padding:20px;
+}
+
+.sidebar h2{
+    margin-bottom:40px;
+    font-size:34px;
+    font-weight:500;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar ul li{
+    margin:18px 0;
+}
+
+.sidebar ul li a{
+    display:block;
+    text-decoration:none;
+    color:white;
+    padding:15px 18px;
+    border-radius:10px;
+    font-size:18px;
+    transition:.3s;
+}
+
+.sidebar ul li a:hover{
+    background:#2563eb;
+}
+
+.sidebar ul li.active a{
+    background:#2563eb;
+}
+
+/* Main */
+
+.main{
+    flex:1;
+    padding:40px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.header h1{
+    color:#1f2937;
+    font-size:42px;
+    font-weight:500;
+}
+
+.logout-btn{
+    background:#dc3545;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.logout-btn:hover{
+    background:#bb2d3b;
+}
+
+/* Card */
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+}
+
+/* Table */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#212529;
+    color:white;
+}
+
+th,
+td{
+    padding:15px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+
+tbody tr:hover{
+    background:#f8f9fa;
+}
+
+/* Select */
+
+select{
+    width:170px;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+/* Buttons */
+
+.btn-update{
+    margin-top:10px;
+    background:#198754;
+    color:white;
+    border:none;
+    padding:8px 18px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.btn-update:hover{
+    background:#157347;
+}
+
+/* Status */
+
+.badge{
+    padding:8px 15px;
+    border-radius:20px;
+    color:white;
+    font-weight:bold;
+}
+
+.pending{
+    background:#ffc107;
+    color:black;
+}
+
+.packed{
+    background:#6f42c1;
+}
+
+.shipped{
+    background:#0d6efd;
+}
+
+.transit{
+    background:#fd7e14;
+}
+
+.delivered{
+    background:#198754;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+.container{
+    flex-direction:column;
+}
+
+.sidebar{
+    width:100%;
+}
+
+.main{
+    padding:20px;
+}
+
+table{
+    font-size:14px;
+}
+
+}

@@ -1,17 +1,16 @@
 package Procurement.Master.Service;
 
 
-
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import Procurement.Master.Dto.PurchaseRequisitionRequest;
+import Procurement.Master.Dto.PurchaseRequisitionDto;
 import Procurement.Master.Entity.ApprovalHistory;
 import Procurement.Master.Entity.Employee;
 import Procurement.Master.Entity.PurchaseRequisition;
@@ -33,152 +32,271 @@ public class PurchaseRequisitionService {
 
     @Autowired
     private WorkflowRepository workflowRepository;
-@Autowired 
-private ApprovalHistoryRepository  history;
-    // Create Purchase Requisition
-    public PurchaseRequisition createRequisition(PurchaseRequisitionRequest request) {
 
-        Employee employee = employeeRepository.findById(request.getEmployeeId())
+    @Autowired
+    private ApprovalHistoryRepository historyRepository;
+
+
+    // =====================================================
+    // CREATE PURCHASE REQUISITION
+    // =====================================================
+
+    @Transactional
+    public PurchaseRequisitionDto createRequisition(
+            PurchaseRequisitionDto dto) {
+
+        // -----------------------------------------------
+        // 1. Find Employee
+        // -----------------------------------------------
+
+        Employee employee = employeeRepository
+                .findById(dto.getEmployeeId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found"));
+                        new ResourceNotFoundException(
+                                "Employee not found"));
 
-        if (!employee.getRole().equalsIgnoreCase("EMPLOYEE")) {
-            throw new RuntimeException("Only employees can create purchase requisitions.");
-        }
 
-        PurchaseRequisition requisition = new PurchaseRequisition();
-        Optional<PurchaseRequisition> existingRequest =
-                requisitionRepository.findTopByEmployeeAndItemNameOrderByCreatedDateDesc(
-                        employee,
-                        request.getItemName());
+        // -----------------------------------------------
+        // 2. Check duplicate pending request
+        // -----------------------------------------------
 
-        if (existingRequest.isPresent()) {
+        Optional<PurchaseRequisition> existing =
+                requisitionRepository
+                        .findTopByEmployeeAndItemNameOrderByCreatedDateDesc(
+                                employee,
+                                dto.getItemName());
 
-            PurchaseRequisition existing = existingRequest.get();
+        if (existing.isPresent()) {
 
-            // Don't allow duplicate pending or under review requests
-            if (existing.getStatus().equalsIgnoreCase("PENDING") ||
-                existing.getStatus().equalsIgnoreCase("UNDER_REVIEW")) {
+            PurchaseRequisition req = existing.get();
+
+            if ("PENDING".equalsIgnoreCase(req.getStatus())
+                    || "UNDER_REVIEW".equalsIgnoreCase(req.getStatus())) {
 
                 throw new RuntimeException(
                         "A request for this item is already in progress.");
             }
-
-            // Allow the same item only after one month from approval
-            if (existing.getStatus().equalsIgnoreCase("APPROVED")) {
-
-                LocalDateTime nextAllowedDate =
-                        existing.getCreatedDate().plusMonths(1);
-
-                if (LocalDateTime.now().isBefore(nextAllowedDate)) {
-                    throw new RuntimeException(
-                            "You can request this item again after "
-                            + nextAllowedDate.toLocalDate());
-                }
-            }
         }
-        requisition.setEmployee(employee);
-        requisition.setItemName(request.getItemName());
-        requisition.setQuantity(request.getQuantity());
-        requisition.setEstimatedCost(request.getEstimatedCost());
-        requisition.setJustification(request.getJustification());
-        requisition.setStatus("PENDING");
-        requisition.setCreatedDate(LocalDateTime.now());
 
-        PurchaseRequisition savedRequisition = requisitionRepository.save(requisition);
 
-        // Assign first approver (Manager)
-        Employee manager = employeeRepository.findByRole("MANAGER")
+        // -----------------------------------------------
+        // 3. Create Purchase Requisition
+        // -----------------------------------------------
+
+        PurchaseRequisition entity =
+                new PurchaseRequisition();
+
+        entity.setEmployee(employee);
+        entity.setItemName(dto.getItemName());
+        entity.setQuantity(dto.getQuantity());
+        entity.setEstimatedCost(dto.getEstimatedCost());
+        entity.setJustification(dto.getJustification());
+        entity.setStatus("PENDING");
+        entity.setCreatedDate(LocalDateTime.now());
+
+
+        // -----------------------------------------------
+        // 4. Save Purchase Requisition
+        // -----------------------------------------------
+
+        entity = requisitionRepository.save(entity);
+
+
+        // -----------------------------------------------
+        // 5. Find Manager
+        // -----------------------------------------------
+
+        Employee manager = employeeRepository
+                .findByRole("MANAGER")
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Manager not found"));
+                        new ResourceNotFoundException(
+                                "Manager not found"));
+
+
+        // -----------------------------------------------
+        // 6. Create Workflow
+        // -----------------------------------------------
 
         Workflow workflow = new Workflow();
-        workflow.setRequisition(savedRequisition);
+
+        workflow.setRequisition(entity);
         workflow.setCurrentLevel(1);
         workflow.setCurrentApprover(manager);
         workflow.setWorkflowStatus("PENDING");
 
         workflowRepository.save(workflow);
 
-        return savedRequisition;
+
+        // -----------------------------------------------
+        // 7. CREATE APPROVAL HISTORY
+        // -----------------------------------------------
+
+        ApprovalHistory history =
+                new ApprovalHistory();
+
+        history.setRequisition(entity);
+
+        // Employee who raised the request
+        history.setApprover(employee);
+
+        history.setAction("REQUEST_CREATED");
+
+        history.setRemarks(
+                "Purchase request raised by employee");
+
+        history.setActionDate(
+                LocalDateTime.now());
+
+        historyRepository.save(history);
+
+
+        // -----------------------------------------------
+        // 8. Return response
+        // -----------------------------------------------
+
+        return convertToDto(entity);
     }
 
-    // Get All Requisitions
-    public List<PurchaseRequisition> getAllRequisitions() {
 
-        return requisitionRepository.findAll();
+    // =====================================================
+    // GET ALL REQUISITIONS
+    // =====================================================
+
+    public List<PurchaseRequisitionDto> getAllRequisitions() {
+
+        return requisitionRepository.findAll()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    // Get Requisition By Id
-    public PurchaseRequisition getRequisitionById(Long id) {
 
-        return requisitionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Purchase Requisition not found"));
+    // =====================================================
+    // GET REQUISITION BY ID
+    // =====================================================
+
+    public PurchaseRequisitionDto getRequisitionById(Long id) {
+
+        PurchaseRequisition entity =
+                requisitionRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Purchase Requisition Not Found"));
+
+        return convertToDto(entity);
     }
 
-    // Update Requisition
-    public PurchaseRequisition updateRequisition(Long id,
-            PurchaseRequisitionRequest request) {
 
-        PurchaseRequisition requisition = getRequisitionById(id);
+    // =====================================================
+    // GET REQUISITIONS BY EMPLOYEE
+    // =====================================================
 
-        if (!requisition.getStatus().equalsIgnoreCase("PENDING")) {
-            throw new RuntimeException(
-                    "Only pending requisitions can be updated.");
-        }
+    public List<PurchaseRequisitionDto> getRequisitionsByEmployee(
+            Long employeeId) {
 
-        requisition.setItemName(request.getItemName());
-        requisition.setQuantity(request.getQuantity());
-        requisition.setEstimatedCost(request.getEstimatedCost());
-        requisition.setJustification(request.getJustification());
+        Employee employee =
+                employeeRepository.findById(employeeId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Employee Not Found"));
 
-        return requisitionRepository.save(requisition);
+        return requisitionRepository
+                .findByEmployee(employee)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    // Delete Requisition
-//    public void deleteRequisition(Long id) {
-//
-//        PurchaseRequisition requisition = getRequisitionById(id);
-//
-////        if (!requisition.getStatus().equalsIgnoreCase("PENDING")) {
-////            throw new RuntimeException(
-////                    "Completed requisitions cannot be deleted.");
-////        }
-//        String status = requisition.getStatus();
-//
-//        if ("APPROVED".equals(status) || "REJECTED".equals(status)) {
-//            throw new RuntimeException("Completed requisitions cannot be deleted.");
-//        }
-//        Workflow workflow = workflowRepository.findByRequisition(requisition)
-//                .orElseThrow(() ->
-//                        new ResourceNotFoundException("Workflow not found"));
-//
-//        workflowRepository.delete(workflow);
-//
-//        requisitionRepository.delete(requisition);
-//    }
-//}
+
+    // =====================================================
+    // UPDATE REQUISITION
+    // =====================================================
+
+    public PurchaseRequisitionDto updateRequisition(
+            Long id,
+            PurchaseRequisitionDto dto) {
+
+        PurchaseRequisition entity =
+                requisitionRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Purchase Requisition Not Found"));
+
+        entity.setItemName(dto.getItemName());
+        entity.setQuantity(dto.getQuantity());
+        entity.setEstimatedCost(dto.getEstimatedCost());
+        entity.setJustification(dto.getJustification());
+
+        entity =
+                requisitionRepository.save(entity);
+
+        return convertToDto(entity);
+    }
+
+
+    // =====================================================
+    // DELETE REQUISITION
+    // =====================================================
+
     @Transactional
     public void deleteRequisition(Long id) {
 
-        PurchaseRequisition requisition = getRequisitionById(id);
+        PurchaseRequisition entity =
+                requisitionRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Purchase Requisition Not Found"));
 
-        String status = requisition.getStatus();
-
-        if ("APPROVED".equalsIgnoreCase(status)
-                || "REJECTED".equalsIgnoreCase(status)) {
-            throw new RuntimeException("Completed requisitions cannot be deleted.");
-        }
 
         // Delete approval history first
-        history.deleteByRequisition(requisition);
+        historyRepository.deleteByRequisition(entity);
+
 
         // Delete workflow
-        workflowRepository.findByRequisition(requisition)
+        workflowRepository.findByRequisition(entity)
                 .ifPresent(workflowRepository::delete);
 
-        // Finally delete requisition
-        requisitionRepository.delete(requisition);
+
+        // Delete requisition
+        requisitionRepository.delete(entity);
+    }
+
+
+    // =====================================================
+    // CONVERT ENTITY TO DTO
+    // =====================================================
+
+    private PurchaseRequisitionDto convertToDto(
+            PurchaseRequisition entity) {
+
+        PurchaseRequisitionDto dto =
+                new PurchaseRequisitionDto();
+
+        dto.setRequestId(
+                entity.getRequestId());
+
+        dto.setEmployeeId(
+                entity.getEmployee()
+                        .getEmployeeId());
+
+        dto.setItemName(
+                entity.getItemName());
+
+        dto.setQuantity(
+                entity.getQuantity());
+
+        dto.setEstimatedCost(
+                entity.getEstimatedCost());
+
+        dto.setJustification(
+                entity.getJustification());
+
+        dto.setStatus(
+                entity.getStatus());
+
+        dto.setCreatedDate(
+                entity.getCreatedDate());
+
+        return dto;
     }
 }

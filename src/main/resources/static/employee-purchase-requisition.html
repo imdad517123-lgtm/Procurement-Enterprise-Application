@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Create Purchase Request</title>
+
+<link rel="stylesheet" href="employee-purchase-requisition.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>Procurement</h2>
+
+        <ul>
+
+            <li><a href="employee-dashboard.html">Dashboard</a></li>
+
+            <li>
+                <a href="employee-purchase-requisition.html"
+                   class="active">
+                    Create Purchase Request
+                </a>
+            </li>
+
+            <li><a href="my-requests.html">My Requests</a></li>
+
+			<li><a href="my-history.html">Approval History</a></li>
+
+            <li><a href="login.html" onclick="logout()">Logout</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <h1>Create Purchase Request</h1>
+
+            <p>Submit a new purchase requisition</p>
+
+        </header>
+
+        <div class="card">
+
+            <input type="hidden" id="employeeId">
+
+            <div class="form-group">
+
+                <label>Item Name</label>
+
+                <input
+                    type="text"
+                    id="itemName"
+                    placeholder="Enter Item Name">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Quantity</label>
+
+                <input
+                    type="number"
+                    id="quantity"
+                    placeholder="Enter Quantity">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Estimated Cost</label>
+
+                <input
+                    type="number"
+                    id="estimatedCost"
+                    placeholder="Enter Estimated Cost">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Justification</label>
+
+                <textarea
+                    id="justification"
+                    rows="5"
+                    placeholder="Enter Justification"></textarea>
+
+            </div>
+
+            <button onclick="saveRequest()">
+
+                Submit Request
+
+            </button>
+
+            <button onclick="clearForm()">
+
+                Clear
+
+            </button>
+
+            <p id="message"></p>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="employee-purchase-requisition.js"></script>
+
+</body>
+</html>

@@ -17,5 +17,6 @@ public interface ApproverHierarchyRepository extends JpaRepository<ApprovalHiera
 	   Optional<ApprovalHierarchy> findByLevel(int level);
 
 	    Optional<ApprovalHierarchy> findByRole(String role);
+	   
 
 }

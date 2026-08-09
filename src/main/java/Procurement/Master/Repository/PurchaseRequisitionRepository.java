@@ -22,4 +22,5 @@ public interface PurchaseRequisitionRepository extends JpaRepository<PurchaseReq
     Optional<PurchaseRequisition> findTopByEmployeeAndItemNameOrderByCreatedDateDesc(
             Employee employee,
             String itemName);
+    List<PurchaseRequisition> findByStatusIn(List<String> status);
 }

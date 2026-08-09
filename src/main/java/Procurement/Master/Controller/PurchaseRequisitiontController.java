@@ -1,60 +1,65 @@
 package Procurement.Master.Controller;
 
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import Procurement.Master.Dto.PurchaseRequisitionDto;
+import Procurement.Master.Service.PurchaseRequisitionService;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import Procurement.Master.Dto.PurchaseRequisitionRequest;
-import Procurement.Master.Entity.PurchaseRequisition;
-import Procurement.Master.Service.PurchaseRequisitionService;
-import java.util.List;
-	@RestController
-	@RequestMapping("/api/requisitions")
-	@CrossOrigin(origins = "*")
-	public class PurchaseRequisitiontController {
 
-	    @Autowired
-	    private PurchaseRequisitionService requisitionService;
+@RestController
+@RequestMapping("/api/requisitions")
+@CrossOrigin(origins = "*")
+@Validated
+public class PurchaseRequisitiontController {
 
-	    // Create Purchase Requisition
-	    @PostMapping
-	    public PurchaseRequisition createRequisition(
-	            @Valid @RequestBody PurchaseRequisitionRequest request) {
+    @Autowired
+    private PurchaseRequisitionService requisitionService;
 
-	        return requisitionService.createRequisition(request);
-	    }
+    @PostMapping
+    public PurchaseRequisitionDto createRequisition(
+            @Valid @RequestBody PurchaseRequisitionDto request) {
 
-	    // Get All Requisitions
-	    @GetMapping
-	    public List<PurchaseRequisition> getAllRequisitions() {
+        return requisitionService.createRequisition(request);
+    }
 
-	        return requisitionService.getAllRequisitions();
-	    }
+    @GetMapping
+    public List<PurchaseRequisitionDto> getAllRequisitions() {
 
-	    // Get Requisition By Id
-	    @GetMapping("/{id}")
-	    public PurchaseRequisition getRequisitionById(
-	            @PathVariable Long id) {
+        return requisitionService.getAllRequisitions();
+    }
 
-	        return requisitionService.getRequisitionById(id);
-	    }
+    @GetMapping("/{id}")
+    public PurchaseRequisitionDto getRequisitionById(
+            @PathVariable Long id) {
 
-	    // Update Requisition
-	    @PutMapping("/{id}")
-	    public PurchaseRequisition updateRequisition(
-	            @PathVariable Long id,
-	            @Valid @RequestBody PurchaseRequisitionRequest request) {
+        return requisitionService.getRequisitionById(id);
+    }
 
-	        return requisitionService.updateRequisition(id, request);
-	    }
-	    // Delete Requisition
-	    @DeleteMapping("/{id}")
-	    public String deleteRequisition(
-	            @PathVariable Long id) {
+    @GetMapping("/employee/{employeeId}")
+    public List<PurchaseRequisitionDto> getEmployeeRequisitions(
+            @PathVariable Long employeeId) {
 
-	        requisitionService.deleteRequisition(id);
+        return requisitionService.getRequisitionsByEmployee(employeeId);
+    }
 
-	        return "Purchase Requisition Deleted Successfully";
-	    }
-	}
+    @PutMapping("/{id}")
+    public PurchaseRequisitionDto updateRequisition(
+            @PathVariable Long id,
+            @Valid @RequestBody PurchaseRequisitionDto request) {
+
+        return requisitionService.updateRequisition(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteRequisition(@PathVariable Long id) {
+
+        requisitionService.deleteRequisition(id);
+
+        return "Purchase Requisition Deleted Successfully";
+    }
+}

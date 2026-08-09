@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import Procurement.Master.Entity.ApprovalHistory;
 import Procurement.Master.Entity.Employee;
 import Procurement.Master.Entity.PurchaseRequisition;
+import Procurement.Master.Entity.Workflow;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public interface ApprovalHistoryRepository extends JpaRepository<ApprovalHistory
 //		void deleteByRequestId(Long id);
 	    void deleteByRequisition(PurchaseRequisition requisition);
 
-		
+	    List<ApprovalHistory> findByRequisitionEmployeeEmployeeId(Long employeeId);
+	    List<ApprovalHistory> findByRequisitionRequestIdOrderByActionDateAsc(Long requestId);
 
+	    List<ApprovalHistory> findByApprover_EmployeeId(Long employeeId);
 }

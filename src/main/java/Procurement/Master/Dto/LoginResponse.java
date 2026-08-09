@@ -5,11 +5,13 @@ public class LoginResponse {
 
     private String message;
     private Long employeeId;
+    private Long supplierId;
+    private String supplierName;
     private String employeeCompanyId;
     private String employeeName;
     private String email;
     private String role;
-
+    private String token;
     // Default Constructor
     public LoginResponse() {
     }
@@ -31,7 +33,18 @@ public class LoginResponse {
     }
 
     // Getters and Setters
+    public String getToken(){
 
+    	return token;
+
+    	}
+
+
+    	public void setToken(String token){
+
+    	this.token=token;
+
+    	}
     public String getMessage() {
         return message;
     }
@@ -79,4 +92,20 @@ public class LoginResponse {
     public void setRole(String role) {
         this.role = role;
     }
+
+	public Long getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(Long supplierId) {
+		this.supplierId = supplierId;
+	}
+
+	public String getSupplierName() {
+		return supplierName;
+	}
+
+	public void setSupplierName(String supplierName) {
+		this.supplierName = supplierName;
+	}
 }

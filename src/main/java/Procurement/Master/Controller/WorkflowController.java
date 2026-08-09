@@ -1,88 +1,233 @@
 package Procurement.Master.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import Procurement.Master.Dto.ApprovalRequest;
-import Procurement.Master.Entity.ApprovalHistory;
-import Procurement.Master.Entity.Workflow;
-import Procurement.Master.Service.WorkflowService;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.core.Authentication;
+
+import org.springframework.web.bind.annotation.*;
+
+import Procurement.Master.Dto.ApprovalRequest;
+import Procurement.Master.Entity.Employee;
+import Procurement.Master.Entity.Workflow;
+import Procurement.Master.Repository.EmployeeRepository;
+import Procurement.Master.Service.WorkflowService;
+
+
+
 @RestController
 @RequestMapping("/api/workflow")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 public class WorkflowController {
 
-    @Autowired
-    private WorkflowService workflowService;
 
-    // Approve Request
-    @PutMapping("/approve/{requestId}")
-    public String approveRequest(
-            @PathVariable Long requestId,
-            @RequestBody ApprovalRequest request) {
 
-        workflowService.approveRequest(
-                requestId,
-                request.getApproverId(),
-                request.getRemarks());
+@Autowired
+private WorkflowService workflowService;
 
-        return "Request Approved Successfully";
-    }
 
-    // Reject Request
-    @PutMapping("/reject/{requestId}")
-    public String rejectRequest(
-            @PathVariable Long requestId,
-            @RequestBody ApprovalRequest request) {
+@Autowired
+private EmployeeRepository employeeRepository;
 
-        workflowService.rejectRequest(
-                requestId,
-                request.getApproverId(),
-                request.getRemarks());
 
-        return "Request Rejected Successfully";
-    }
 
-    // Workflow Status
-    @GetMapping("/{requestId}")
-    public Workflow getWorkflow(
-            @PathVariable Long requestId) {
 
-        return workflowService.getWorkflow(requestId);
-    }
 
-    // Approval History
-    @GetMapping("/history/{requestId}")
-    public List<ApprovalHistory> getApprovalHistory(
-            @PathVariable Long requestId) {
+// ================================
+// PENDING REQUESTS
+// ================================
 
-        return workflowService.getApprovalHistory(requestId);
-    }
 
-    // Pending Requests
-    @GetMapping("/pending")
-    public List<Workflow> getPendingRequests() {
+@GetMapping("/pending")
+public List<Workflow> pending(
+Authentication authentication){
 
-        return workflowService.getPendingRequests();
-    }
-    @GetMapping
-    public List<Workflow> getAllWorkflows() {
-        return workflowService.getAllWorkflows();
-    }
-    // Approved Requests
-    @GetMapping("/approved")
-    public List<Workflow> getApprovedRequests() {
 
-        return workflowService.getApprovedRequests();
-    }
 
-    // Rejected Requests
-    @GetMapping("/rejected")
-    public List<Workflow> getRejectedRequests() {
+String email =
+authentication.getName();
 
-        return workflowService.getRejectedRequests();
-    }
+
+
+Employee employee =
+employeeRepository
+.findByEmail(email)
+.orElseThrow();
+
+
+
+return workflowService.getPendingRequests(employee);
+
+
+}
+
+
+
+
+
+
+
+// ================================
+// APPROVE
+// ================================
+
+@PutMapping("/approve/{requestId}")
+public String approve(
+
+        @PathVariable Long requestId,
+
+        @RequestBody ApprovalRequest request,
+
+        Authentication authentication){
+
+
+    String email =
+            authentication.getName();
+
+
+
+    Employee employee =
+            employeeRepository
+            .findByEmail(email)
+            .orElseThrow();
+
+
+
+    return workflowService
+            .approveRequest(
+                    requestId,
+                    employee,
+                    request.getRemarks()
+            );
+
+}
+
+
+
+
+
+
+
+
+// ================================
+// REJECT
+// ================================
+
+@PutMapping("/reject/{requestId}")
+public String reject(
+
+        @PathVariable Long requestId,
+
+        @RequestBody ApprovalRequest request,
+
+        Authentication authentication){
+
+
+    String email =
+            authentication.getName();
+
+
+
+    Employee employee =
+            employeeRepository
+            .findByEmail(email)
+            .orElseThrow();
+
+
+
+    return workflowService
+            .rejectRequest(
+                    requestId,
+                    employee,
+                    request.getRemarks()
+            );
+
+}
+
+
+// ================================
+// GET BY REQUEST ID
+// ================================
+
+
+@GetMapping("/{requestId}")
+public Workflow getWorkflow(
+
+@PathVariable Long requestId){
+
+
+
+return workflowService.getWorkflow(requestId);
+
+
+}
+
+
+
+
+
+
+
+
+// ================================
+// ALL WORKFLOW
+// ================================
+
+
+@GetMapping
+public List<Workflow> all(){
+
+
+return workflowService
+.getAllWorkflows();
+
+
+}
+
+
+
+
+
+
+
+// ================================
+// APPROVED
+// ================================
+
+
+@GetMapping("/approved")
+public List<Workflow> approved(){
+
+
+return workflowService
+.getApprovedRequests();
+
+
+}
+
+
+
+
+
+
+
+// ================================
+// REJECTED
+// ================================
+
+
+@GetMapping("/rejected")
+public List<Workflow> rejected(){
+
+
+return workflowService
+.getRejectedRequests();
+
+
+}
+
+
 }
